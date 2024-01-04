@@ -13,7 +13,9 @@ body {
 .date-picker-button {
   cursor: pointer;
 }
-
+.today-button {
+  width: fit-content;
+}
 .date-picker {
   position: absolute;
   margin-top: 1rem;
@@ -26,9 +28,14 @@ body {
     0 1px 2px 0 rgba(0, 0, 0, 0.06), 0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
   background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .date-picker-header {
+  width: 100%;
+  margin: 10px 0;
   display: flex;
   justify-content: space-between;
   font-weight: bold;

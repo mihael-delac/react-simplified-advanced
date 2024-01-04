@@ -5,7 +5,7 @@ import { DatePicker } from "./components/DatePicker";
 import { format } from "date-fns";
 
 function App() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -14,9 +14,11 @@ function App() {
         className="date-picker-button"
         onClick={() => setIsOpen((currentValue) => !currentValue)}
       >
-        {format(selectedDate, "PPP")}
+        {selectedDate ? format(selectedDate, "PPP") : "Select a date"}
       </button>
-      {isOpen && <DatePicker date={selectedDate} onChange={setSelectedDate} />}
+      {isOpen && (
+        <DatePicker selectedDate={selectedDate} onChange={setSelectedDate} />
+      )}
     </div>
   );
 }
