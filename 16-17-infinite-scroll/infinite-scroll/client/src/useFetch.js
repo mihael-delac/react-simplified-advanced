@@ -4,10 +4,8 @@ export function useFetch(url) {
   const [data, setData] = useState(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setError] = useState(false);
-
   useEffect(() => {
     setError(false);
-
     setData(undefined);
     setIsLoading(true);
     const controller = new AbortController();

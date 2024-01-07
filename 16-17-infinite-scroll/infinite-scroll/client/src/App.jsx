@@ -1,22 +1,23 @@
 /* eslint-disable no-unused-vars */
 import { useFetch } from "./useFetch";
+import "./styles.css";
 
 function App() {
   const {
     data,
     isLoading = true,
     isError,
-  } = useFetch("http://127.0.0.1:3000/photos?_page=0&_limit=10");
+  } = useFetch("http://127.0.0.1:3000/photos-short-list");
   return (
-    <>
+    <div className="grid">
       {isLoading ? (
-        <div>Loading...</div>
+        <div className="skeleton">Loading...</div>
       ) : (
         data?.map((photo) => {
-          return <div key={photo.id}>{photo.title}</div>;
+          return <img key={photo.id} src={photo.url} />;
         })
       )}
-    </>
+    </div>
   );
 }
 
