@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 
 export function useFetch(url) {
-  const [data, setData] = useState(undefined);
+  console.log("url", url);
+  const [newData, setNewData] = useState(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setError] = useState(false);
   useEffect(() => {
     setError(false);
-    setData(undefined);
+    setNewData(undefined);
     setIsLoading(true);
     const controller = new AbortController();
 
@@ -20,7 +21,7 @@ export function useFetch(url) {
           return Promise.reject(res);
         }
       })
-      .then(setData)
+      .then(setNewData)
       .catch((err) => {
         if (err?.name === "AbortError") return;
         setError(true);
@@ -32,6 +33,8 @@ export function useFetch(url) {
     return () => {
       controller.abort();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
-  return { data, isLoading, isError };
+  console.log("newdata", newData);
+  return { newData, isLoading, isError };
 }
