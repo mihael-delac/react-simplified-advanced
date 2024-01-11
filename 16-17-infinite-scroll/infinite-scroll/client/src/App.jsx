@@ -1,46 +1,77 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
-import { useFetch } from "./useFetch";
 import "./styles.css";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import parseLinkHeader from "./parseLinkHeader";
+
+const LIMIT = 10;
 
 function App() {
-  const [pageNumber, setPageNumber] = useState(1);
-  const [data, setData] = useState(undefined);
-  const {
-    newData = undefined,
-    isLoading = true,
-    isError,
-  } = useFetch(
-    `http://127.0.0.1:3000/photos-short-list?_page=${pageNumber}&_limit=1`
-  );
-  useEffect(() => {
-    if (data) {
-      console.log("test", newData);
-      setData([...data, ...newData]);
-    } else if (newData) {
-      setData(newData);
+  const [photos, setPhotos] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const nextPhotoUrlRef = useRef();
+
+  async function fetchPhotos(url, controller = null) {
+    setIsLoading(true);
+    try {
+      const res = await fetch(url, { signal: controller?.signal });
+      nextPhotoUrlRef.current = parseLinkHeader(res.headers.get("Link")).next;
+      const photosRes = await res.json();
+      setPhotos((prevPhotos) => {
+        return [...prevPhotos, ...photosRes];
+      });
+    } catch (error) {
+      if (error.name == "AbortError") return;
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newData]);
-  console.log("data", data);
+  }
+
+  const imageRef = useCallback((image) => {
+    if (image == null || nextPhotoUrlRef.current == null) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchPhotos(nextPhotoUrlRef.current);
+          observer.unobserve(image);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(image);
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchPhotos(
+      `http://localhost:3000/photos?_page=1&_limit=${LIMIT}`,
+      controller
+    );
+    return () => controller.abort();
+  }, []);
 
   return (
     <>
       <div className="grid">
-        {isLoading ? (
-          <div className="skeleton">Loading...</div>
-        ) : (
-          data?.map((photo) => {
-            return <img key={photo.id} src={photo.url} />;
-          })
-        )}
+        {photos?.map((photo) => (
+          <img
+            src={photo.url}
+            key={photo.id}
+            ref={photo.id === photos.length - 1 ? imageRef : undefined}
+          />
+        ))}
+        {isLoading &&
+          Array.from({ length: LIMIT }, (_, index) => index).map((n) => {
+            return (
+              <div key={n} className="skeleton">
+                Loading...
+              </div>
+            );
+          })}
       </div>
-      <button
-        style={{ position: "fixed", bottom: "50px" }}
-        onClick={() => setPageNumber(pageNumber + 1)}
-      >
-        Click
-      </button>
     </>
   );
 }

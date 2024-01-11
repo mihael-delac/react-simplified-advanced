@@ -5,7 +5,7 @@
    this project is the `next` link, which we will use to fetch the
    next page of data (if it exists).
 */
-export function parseLinkHeader(linkHeader) {
+export default function parseLinkHeader(linkHeader) {
   if (!linkHeader) return {};
   const links = linkHeader.split(",");
   const parsedLinks = {};
