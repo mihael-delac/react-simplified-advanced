@@ -1,7 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { SetStateAction, createContext, useContext, useState } from "react";
 import { Calendar } from "./components/Calendar";
-import { CreateEventModal } from "./components/CreateEventModal";
 
 type DataObjectType = {
   date: Date;
@@ -20,15 +19,12 @@ export const useDateContext = () => {
 
 function App() {
   const [date, setDate] = useState<Date>(new Date());
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <>
-      <button onClick={() => setIsModalOpen(true)}>Open</button>
       <DateContext.Provider value={{ date, onChange: setDate }}>
         <Calendar />;
       </DateContext.Provider>
-      {isModalOpen && <CreateEventModal />}
     </>
   );
 }

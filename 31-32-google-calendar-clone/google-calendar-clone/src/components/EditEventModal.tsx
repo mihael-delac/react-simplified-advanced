@@ -1,27 +1,31 @@
 import { format } from "date-fns";
-import { EventObject, EventClass } from "./Day";
+import { EventObject } from "./Day";
 
-interface CreateEventModalProps {
+interface EditEventModalProps {
   onChange: React.Dispatch<React.SetStateAction<boolean>>;
   day: Date;
-  addEvent: (event: EventObject) => void;
+  event: EventObject;
+  editEvent: (event: EventObject) => void;
+  deleteEvent: (event: EventObject) => void;
 }
-export function CreateEventModal({
+
+export function EditEventModal({
   onChange,
   day,
-  addEvent,
-}: CreateEventModalProps) {
-  function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
+  event,
+  editEvent,
+  deleteEvent,
+}: EditEventModalProps) {
+  function handleEditSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-    const newEvent = new EventClass({
-      allDay: true,
-      color: "green",
-      name: "Test",
-      id: crypto.randomUUID(),
-    });
-    addEvent(newEvent);
+    editEvent(event);
+    onChange(false);
   }
-
+  function handleDeleteSubmit(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    deleteEvent(event);
+    onChange(false);
+  }
   return (
     <div className="modal">
       <div className="overlay"></div>
@@ -35,7 +39,7 @@ export function CreateEventModal({
         </div>
         <form>
           <div className="form-group">
-            <label htmlFor="name">Name</label>
+            <label htmlFor="name">{event.name}</label>
             <input type="text" name="name" id="name" />
           </div>
           <div className="form-group checkbox">
@@ -92,9 +96,16 @@ export function CreateEventModal({
             <button
               className="btn btn-success"
               type="submit"
-              onClick={(e) => handleSubmit(e)}
+              onClick={handleEditSubmit}
             >
-              Add
+              Confirm Edit
+            </button>
+            <button
+              className="btn btn-delete"
+              type="button"
+              onClick={handleDeleteSubmit}
+            >
+              Delete
             </button>
           </div>
         </form>
