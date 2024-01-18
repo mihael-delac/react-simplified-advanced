@@ -16,9 +16,9 @@ interface DayProps {
 
 export function Day({ day }: DayProps) {
   const { date } = useDateContext();
-  const isNonMonthDay = isSameMonth(day, date);
+  const isNonMonthDay = !isSameMonth(day, date);
   const isTodaysDate = isToday(day);
-  const isBeforeToday = isTodaysDate ? false : isBefore(day, date); //for some reason it returns 'false' for today's date
+  const isBeforeToday = isTodaysDate ? false : isBefore(day, new Date()); //for some reason it returns 'false' for today's date
 
   return (
     <div

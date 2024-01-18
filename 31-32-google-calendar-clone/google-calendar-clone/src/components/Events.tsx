@@ -39,7 +39,7 @@ export function Events() {
       new EventClass({
         color: "green",
         time: "7pm",
-        name: "test event",
+        name: "test2222 event",
         id: crypto.randomUUID(),
       }),
       new EventClass({
