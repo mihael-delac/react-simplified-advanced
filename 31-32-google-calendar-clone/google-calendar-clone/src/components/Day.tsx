@@ -10,16 +10,35 @@ import {
 import { useDateContext } from "../App";
 import { Events } from "./Events";
 import { CreateEventModal } from "./CreateEventModal";
-import { useReducer, useState } from "react";
+import { createContext, useContext, useReducer, useState } from "react";
 import { createPortal } from "react-dom";
 import { DayEventsModal } from "./DayEventsModal";
 
+export interface DayObjectType {
+  day: Date;
+  editEvent: (event: EventObject) => void;
+  deleteEvent: (event: EventObject) => void;
+}
+
+const DayContext = createContext<DayObjectType | null>(null);
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useDayContext = () => {
+  const day = useContext(DayContext);
+  if (!day) {
+    throw new Error("useGetDateComplex must be used within a Provider");
+  }
+  return day;
+};
 interface DayProps {
   day: Date;
 }
 export interface EventObject {
   allDay?: boolean;
-  time?: string;
+  time?: {
+    startTime: string;
+    endTime: string;
+  };
   color: string;
   name: string;
   id: string;
@@ -27,7 +46,10 @@ export interface EventObject {
 
 export class EventClass implements EventObject {
   allDay?: boolean;
-  time?: string;
+  time?: {
+    startTime: string;
+    endTime: string;
+  };
   color: string;
   name: string;
   id: string;
@@ -86,10 +108,8 @@ function reducer(state: EventObject[], action: Action) {
 }
 
 export function Day({ day }: DayProps) {
-  const [isCreateEventModalOpen, setIsCreateEventModalOpen] =
-    useState<boolean>(false);
-  const [isDayEventsModalOpen, setIsDayEventsModalOpen] =
-    useState<boolean>(false);
+  const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false);
+  const [isDayEventsModalOpen, setIsDayEventsModalOpen] = useState(false);
   const [events, dispatch] = useReducer(reducer, []);
   const { date } = useDateContext();
   const isNonMonthDay = !isSameMonth(day, date);
@@ -100,11 +120,11 @@ export function Day({ day }: DayProps) {
     dispatch({ type: ACTIONS.ADD, event: event });
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function deleteEvent(event: EventObject) {
+  function deleteEvent(event: EventObject): void {
     dispatch({ type: ACTIONS.DELETE, id: event.id });
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function editEvent(event: EventObject) {
+  function editEvent(event: EventObject): void {
     dispatch({ type: ACTIONS.EDIT, event: event });
   }
   return (
@@ -128,27 +148,25 @@ export function Day({ day }: DayProps) {
           +
         </button>
       </div>
-      {events.length > 0 && (
-        <Events onChange={setIsDayEventsModalOpen} events={events} />
-      )}
-      {isCreateEventModalOpen &&
-        createPortal(
-          <CreateEventModal
-            onChange={setIsCreateEventModalOpen}
-            day={day}
-            addEvent={addEvent}
-          />,
-          document.body
-        )}
-      {isDayEventsModalOpen &&
-        createPortal(
-          <DayEventsModal
-            onChange={setIsDayEventsModalOpen}
-            day={day}
-            events={events}
-          />,
-          document.body
-        )}
+      <DayContext.Provider value={{ day, editEvent, deleteEvent }}>
+        {events.length > 0 && <Events events={events} />}
+        {isCreateEventModalOpen &&
+          createPortal(
+            <CreateEventModal
+              onChange={setIsCreateEventModalOpen}
+              addEvent={addEvent}
+            />,
+            document.body
+          )}
+        {isDayEventsModalOpen &&
+          createPortal(
+            <DayEventsModal
+              onChange={setIsDayEventsModalOpen}
+              events={events}
+            />,
+            document.body
+          )}
+      </DayContext.Provider>
     </div>
   );
 }

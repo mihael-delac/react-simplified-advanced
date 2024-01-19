@@ -1,21 +1,14 @@
 import { format } from "date-fns";
-import { EventObject } from "./Day";
+import { EventObject, useDayContext } from "./Day";
+import { useEffect } from "react";
 
 interface EditEventModalProps {
   onChange: React.Dispatch<React.SetStateAction<boolean>>;
-  day: Date;
   event: EventObject;
-  editEvent: (event: EventObject) => void;
-  deleteEvent: (event: EventObject) => void;
 }
 
-export function EditEventModal({
-  onChange,
-  day,
-  event,
-  editEvent,
-  deleteEvent,
-}: EditEventModalProps) {
+export function EditEventModal({ onChange, event }: EditEventModalProps) {
+  const { day, editEvent, deleteEvent } = useDayContext();
   function handleEditSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     editEvent(event);
@@ -26,12 +19,25 @@ export function EditEventModal({
     deleteEvent(event);
     onChange(false);
   }
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onChange(false);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [onChange]);
+
   return (
     <div className="modal">
       <div className="overlay"></div>
       <div className="modal-body">
         <div className="modal-title">
-          <div>Add Event</div>
+          <div>Edit Event</div>
           <small>{format(day, "PPP")}</small>
           <button className="close-btn" onClick={() => onChange(false)}>
             &times;
@@ -39,21 +45,41 @@ export function EditEventModal({
         </div>
         <form>
           <div className="form-group">
-            <label htmlFor="name">{event.name}</label>
-            <input type="text" name="name" id="name" />
+            <label htmlFor="name">Name</label>
+            <input
+              type="text"
+              name="name"
+              id="name"
+              defaultValue={event.name}
+            />
           </div>
           <div className="form-group checkbox">
-            <input type="checkbox" name="all-day" id="all-day" />
+            <input
+              type="checkbox"
+              name="all-day"
+              id="all-day"
+              defaultChecked={event.allDay}
+            />
             <label htmlFor="all-day">All Day?</label>
           </div>
           <div className="row">
             <div className="form-group">
               <label htmlFor="start-time">Start Time</label>
-              <input type="time" name="start-time" id="start-time" />
+              <input
+                type="time"
+                name="start-time"
+                id="start-time"
+                defaultValue={event.time?.startTime}
+              />
             </div>
             <div className="form-group">
               <label htmlFor="end-time">End Time</label>
-              <input type="time" name="end-time" id="end-time" />
+              <input
+                type="time"
+                name="end-time"
+                id="end-time"
+                defaultValue={event.time?.endTime}
+              />
             </div>
           </div>
           <div className="form-group">
@@ -64,7 +90,7 @@ export function EditEventModal({
                 name="color"
                 value="blue"
                 id="blue"
-                checked
+                defaultChecked={event.color == "blue" ? true : false}
                 className="color-radio"
               />
               <label htmlFor="blue">
@@ -75,6 +101,7 @@ export function EditEventModal({
                 name="color"
                 value="red"
                 id="red"
+                defaultChecked={event.color == "red" ? true : false}
                 className="color-radio"
               />
               <label htmlFor="red">
@@ -85,6 +112,7 @@ export function EditEventModal({
                 name="color"
                 value="green"
                 id="green"
+                defaultChecked={event.color == "green" ? true : false}
                 className="color-radio"
               />
               <label htmlFor="green">

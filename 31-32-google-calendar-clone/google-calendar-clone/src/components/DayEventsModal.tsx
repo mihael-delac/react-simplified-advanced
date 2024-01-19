@@ -1,14 +1,14 @@
 import { format } from "date-fns";
 import { Events } from "./Events";
-import { EventObject } from "./Day";
+import { EventObject, useDayContext } from "./Day";
 
 interface DayEventsModalProps {
   onChange: React.Dispatch<React.SetStateAction<boolean>>;
-  day: Date;
   events: EventObject[];
 }
 
-export function DayEventsModal({ onChange, day, events }: DayEventsModalProps) {
+export function DayEventsModal({ onChange, events }: DayEventsModalProps) {
+  const { day } = useDayContext();
   return (
     <div className="modal">
       <div className="overlay"></div>

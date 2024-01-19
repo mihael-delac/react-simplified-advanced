@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { EventObject } from "./Day";
 import { createPortal } from "react-dom";
-import { DayEventsModal } from "./DayEventsModal";
+import { EditEventModal } from "./EditEventModal";
 
 interface EventProp {
   event: EventObject;
@@ -18,13 +18,17 @@ export function Event({ event }: EventProp) {
       >
         {!event.allDay && (
           <>
-            <div className="color-dot blue"></div>
-            <div className="event-time">{event.time}</div>
+            <div className={`color-dot ${event.color}`}></div>
+            <div className="event-time">{event.time?.startTime}</div>
           </>
         )}
         <div className="event-name">{event.name}</div>
       </button>
-      {isEditEventModalOpen && createPortal(<DayEventsModal />, document.body)}
+      {isEditEventModalOpen &&
+        createPortal(
+          <EditEventModal onChange={setIsEditEventModalOpen} event={event} />,
+          document.body
+        )}
     </>
   );
 }
