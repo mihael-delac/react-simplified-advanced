@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { EventObject, useDayContext } from "./Day";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface EditEventModalProps {
   onChange: React.Dispatch<React.SetStateAction<boolean>>;
@@ -9,6 +9,7 @@ interface EditEventModalProps {
 
 export function EditEventModal({ onChange, event }: EditEventModalProps) {
   const { day, editEvent, deleteEvent } = useDayContext();
+  const [allDay, setAllDay] = useState(event.allDay);
   function handleEditSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     editEvent(event);
@@ -58,7 +59,8 @@ export function EditEventModal({ onChange, event }: EditEventModalProps) {
               type="checkbox"
               name="all-day"
               id="all-day"
-              defaultChecked={event.allDay}
+              defaultChecked={allDay}
+              onChange={(e) => setAllDay(e.target.checked)}
             />
             <label htmlFor="all-day">All Day?</label>
           </div>
@@ -70,6 +72,7 @@ export function EditEventModal({ onChange, event }: EditEventModalProps) {
                 name="start-time"
                 id="start-time"
                 defaultValue={event.time?.startTime}
+                disabled={allDay}
               />
             </div>
             <div className="form-group">
@@ -79,6 +82,7 @@ export function EditEventModal({ onChange, event }: EditEventModalProps) {
                 name="end-time"
                 id="end-time"
                 defaultValue={event.time?.endTime}
+                disabled={allDay}
               />
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { EventObject, EventClass, useDayContext } from "./Day";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface CreateEventModalProps {
   onChange: React.Dispatch<React.SetStateAction<boolean>>;
@@ -10,8 +10,8 @@ export function CreateEventModal({
   onChange,
   addEvent,
 }: CreateEventModalProps) {
+  const [allDay, setAllDay] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
-  const allDayRef = useRef<HTMLInputElement>(null);
   const startTimeRef = useRef<HTMLInputElement>(null);
   const endTimeRef = useRef<HTMLInputElement>(null);
   const blueRadioRef = useRef<HTMLInputElement>(null);
@@ -29,7 +29,7 @@ export function CreateEventModal({
       ? "green"
       : "blue";
 
-    if (allDayRef.current?.checked) {
+    if (allDay) {
       const newEvent = new EventClass({
         allDay: true,
         color: checkedColor,
@@ -86,7 +86,8 @@ export function CreateEventModal({
               type="checkbox"
               name="all-day"
               id="all-day"
-              ref={allDayRef}
+              defaultChecked={allDay}
+              onChange={(e) => setAllDay(e.target.checked)}
             />
             <label htmlFor="all-day">All Day?</label>
           </div>
@@ -98,6 +99,7 @@ export function CreateEventModal({
                 name="start-time"
                 id="start-time"
                 ref={startTimeRef}
+                disabled={allDay}
               />
             </div>
             <div className="form-group">
@@ -107,6 +109,7 @@ export function CreateEventModal({
                 name="end-time"
                 id="end-time"
                 ref={endTimeRef}
+                disabled={allDay}
               />
             </div>
           </div>

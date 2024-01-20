@@ -119,11 +119,9 @@ export function Day({ day }: DayProps) {
   function addEvent(event: EventObject): void {
     dispatch({ type: ACTIONS.ADD, event: event });
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function deleteEvent(event: EventObject): void {
     dispatch({ type: ACTIONS.DELETE, id: event.id });
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function editEvent(event: EventObject): void {
     dispatch({ type: ACTIONS.EDIT, event: event });
   }
