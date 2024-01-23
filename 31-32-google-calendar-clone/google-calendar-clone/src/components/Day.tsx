@@ -1,21 +1,22 @@
-import {
-  format,
-  getDate,
-  isBefore,
-  isSameMonth,
-  isSameWeek,
-  isToday,
-  startOfMonth,
-} from "date-fns";
+import { isBefore, isSameMonth, isToday } from "date-fns";
 import { useDateContext } from "../App";
 import { Events } from "./Events";
-import { CreateEventModal } from "./CreateEventModal";
-import { createContext, useContext, useReducer, useState } from "react";
+import { EventModal } from "./EventModal";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import { DayEventsModal } from "./DayEventsModal";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import { DayHeader } from "./DayHeader";
 
 export interface DayObjectType {
   day: Date;
+  addEvent: (event: EventObject) => void;
   editEvent: (event: EventObject) => void;
   deleteEvent: (event: EventObject) => void;
 }
@@ -110,12 +111,14 @@ function reducer(state: EventObject[], action: Action) {
 export function Day({ day }: DayProps) {
   const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false);
   const [isDayEventsModalOpen, setIsDayEventsModalOpen] = useState(false);
-  const [events, dispatch] = useReducer(reducer, []);
+  const [initialEvents, setInitialEvents] = useLocalStorage({
+    key: day.toDateString(),
+    initialValue: [],
+  });
+  const [events, dispatch] = useReducer(reducer, initialEvents);
   const { date } = useDateContext();
   const isNonMonthDay = !isSameMonth(day, date);
-  const isTodaysDate = isToday(day);
-  const isBeforeToday = isTodaysDate ? false : isBefore(day, new Date()); //for some reason it returns 'false' for today's date
-
+  const isBeforeToday = isToday(day) ? false : isBefore(day, new Date()); //for some reason it returns 'false' for today's date
   function addEvent(event: EventObject): void {
     dispatch({ type: ACTIONS.ADD, event: event });
   }
@@ -125,6 +128,10 @@ export function Day({ day }: DayProps) {
   function editEvent(event: EventObject): void {
     dispatch({ type: ACTIONS.EDIT, event: event });
   }
+
+  useEffect(() => {
+    setInitialEvents(events);
+  }, [events, setInitialEvents]);
   return (
     <div
       className={`day ${isNonMonthDay && "non-month-day"}  ${
@@ -132,28 +139,14 @@ export function Day({ day }: DayProps) {
       }`}
       key={day.toDateString()}
     >
-      <div className="day-header">
-        {isSameWeek(startOfMonth(date), day) && (
-          <div className="week-name">{format(day, "iii")}</div>
+      <DayHeader day={day} onChange={setIsCreateEventModalOpen} />
+      <DayContext.Provider value={{ day, addEvent, editEvent, deleteEvent }}>
+        {events.length > 0 && (
+          <Events events={events} onChange={setIsDayEventsModalOpen} />
         )}
-        <div className={`day-number ${isTodaysDate && "today"}`}>
-          {getDate(day)}
-        </div>
-        <button
-          className="add-event-btn"
-          onClick={() => setIsCreateEventModalOpen(true)}
-        >
-          +
-        </button>
-      </div>
-      <DayContext.Provider value={{ day, editEvent, deleteEvent }}>
-        {events.length > 0 && <Events events={events} />}
         {isCreateEventModalOpen &&
           createPortal(
-            <CreateEventModal
-              onChange={setIsCreateEventModalOpen}
-              addEvent={addEvent}
-            />,
+            <EventModal onChange={setIsCreateEventModalOpen} />,
             document.body
           )}
         {isDayEventsModalOpen &&

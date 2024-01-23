@@ -1,11 +1,22 @@
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { EventObject } from "./Day";
 import { createPortal } from "react-dom";
-import { EditEventModal } from "./EditEventModal";
+import { EventModal } from "./EventModal";
 
 interface EventProp {
   event: EventObject;
 }
+
+const EventContext = createContext<EventObject | null>(null);
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useEventContext = () => {
+  const event = useContext(EventContext);
+  // if (!event) {
+  //   throw new Error("useEventContext must be used within a Provider");
+  // }
+  return event;
+};
 
 export function Event({ event }: EventProp) {
   const [isEditEventModalOpen, setIsEditEventModalOpen] = useState(false);
@@ -26,7 +37,9 @@ export function Event({ event }: EventProp) {
       </button>
       {isEditEventModalOpen &&
         createPortal(
-          <EditEventModal onChange={setIsEditEventModalOpen} event={event} />,
+          <EventContext.Provider value={event}>
+            <EventModal event={event} onChange={setIsEditEventModalOpen} />
+          </EventContext.Provider>,
           document.body
         )}
     </>
