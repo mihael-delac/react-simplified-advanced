@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { EventObject } from "./Day";
 import { Event } from "./Event";
 
@@ -7,24 +8,26 @@ interface EventsProps {
 }
 
 export function Events({ events, onChange }: EventsProps) {
-  events.sort((a, b) => {
-    if (a.allDay === b.allDay) {
-      return 0;
-    } else if (a.allDay) {
-      return -1;
-    } else {
-      return 1;
-    }
-  });
-
-  function handleClick() {
-    if (events.length > 4) onChange(true);
-  }
+  const eventsRef = useRef<HTMLDivElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const [hiddenEventCount, setHiddenEventCount] = useState<number>(0);
   return (
-    <div className="events" onClick={handleClick}>
-      {events?.map((event) => {
-        return <Event event={event} key={event.id} />;
-      })}
-    </div>
+    <>
+      <div className="events" ref={eventsRef}>
+        {events.map((event) => (
+          <Event
+            event={event}
+            key={event.id}
+            overflow={setIsOverflowing}
+            setHiddenEventCount={setHiddenEventCount}
+          />
+        ))}
+      </div>
+      {isOverflowing && (
+        <button className="events-view-more-btn" onClick={() => onChange(true)}>
+          Show {`+${hiddenEventCount}`} more
+        </button>
+      )}
+    </>
   );
 }

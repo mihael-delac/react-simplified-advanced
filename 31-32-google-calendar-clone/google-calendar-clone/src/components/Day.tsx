@@ -134,20 +134,21 @@ export function Day({ day }: DayProps) {
   }, [events, setInitialEvents]);
   return (
     <div
-      className={`day ${isNonMonthDay && "non-month-day"}  ${
-        isBeforeToday && "old-month-day"
+      className={`day ${isNonMonthDay ? "non-month-day" : ""}  ${
+        isBeforeToday ? "old-month-day" : ""
       }`}
       key={day.toDateString()}
     >
-      <DayHeader day={day} onChange={setIsCreateEventModalOpen} />
       <DayContext.Provider value={{ day, addEvent, editEvent, deleteEvent }}>
+        <DayHeader onChange={setIsCreateEventModalOpen} />
+
         {events.length > 0 && (
           <Events events={events} onChange={setIsDayEventsModalOpen} />
         )}
         {isCreateEventModalOpen &&
           createPortal(
             <EventModal onChange={setIsCreateEventModalOpen} />,
-            document.body
+            document.getElementById("modalDiv")!
           )}
         {isDayEventsModalOpen &&
           createPortal(
@@ -155,7 +156,7 @@ export function Day({ day }: DayProps) {
               onChange={setIsDayEventsModalOpen}
               events={events}
             />,
-            document.body
+            document.getElementById("modalDiv")!
           )}
       </DayContext.Provider>
     </div>

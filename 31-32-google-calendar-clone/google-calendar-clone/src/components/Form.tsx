@@ -4,7 +4,7 @@ import { useEventContext } from "./Event";
 import { FormGroup } from "./FormGroup";
 
 interface FormProps {
-  onChange: React.Dispatch<React.SetStateAction<boolean>>;
+  onChange: () => void;
 }
 
 export function Form({ onChange }: FormProps) {
@@ -27,7 +27,6 @@ export function Form({ onChange }: FormProps) {
 
   function handleSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-
     if (allDay) {
       const newEvent = new EventClass({
         allDay: true,
@@ -49,18 +48,21 @@ export function Form({ onChange }: FormProps) {
       });
       event ? editEvent(newEvent) : addEvent(newEvent);
     }
-    onChange(false);
+    onChange();
   }
 
   function handleDeleteSubmit(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
-    deleteEvent(event!);
-    onChange(false);
+    onChange();
+    setTimeout(() => {
+      deleteEvent(event!);
+    }, 250);
   }
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onChange(false);
+        onChange();
       }
     };
     document.addEventListener("keydown", handleEscape);
@@ -68,6 +70,7 @@ export function Form({ onChange }: FormProps) {
       document.removeEventListener("keydown", handleEscape);
     };
   }, [onChange]);
+
   return (
     <form>
       <FormGroup>

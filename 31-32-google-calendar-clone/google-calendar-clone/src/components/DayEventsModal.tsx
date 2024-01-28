@@ -9,6 +9,7 @@ interface DayEventsModalProps {
 
 export function DayEventsModal({ events, onChange }: DayEventsModalProps) {
   const { day } = useDayContext();
+  console.log(events);
   return (
     <div className="modal">
       <div className="overlay"></div>

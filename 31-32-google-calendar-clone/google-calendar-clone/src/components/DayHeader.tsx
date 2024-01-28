@@ -1,13 +1,14 @@
 import { format, getDate, isSameWeek, isToday, startOfMonth } from "date-fns";
 import { useDateContext } from "../App";
+import { useDayContext } from "./Day";
 
 interface DayHeaderProps {
-  day: Date;
   onChange: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function DayHeader({ day, onChange }: DayHeaderProps) {
+export function DayHeader({ onChange }: DayHeaderProps) {
   const { date } = useDateContext();
+  const { day } = useDayContext();
 
   return (
     <div className="day-header">
